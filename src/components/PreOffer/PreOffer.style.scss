@@ -1,0 +1,14 @@
+.preOffer {
+  position: relative;
+  flex-basis: 68%;
+
+  &__title {
+    margin-bottom: 8px;
+  }
+
+  &__button {
+    background-color: var(--color-green);
+    color: whitesmoke;
+    margin-top: calc(var(--size-bezel) * 2);
+  }
+}

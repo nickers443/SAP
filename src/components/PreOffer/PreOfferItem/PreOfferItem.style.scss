@@ -1,0 +1,26 @@
+.preOfferItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding:  calc(var(--size-bezel) * 2);
+  border-bottom: 1px solid var(--color-dark);
+
+  span:not(:last-child) {
+    margin-right: var(--size-bezel);
+  }
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &__button {
+    color: red;
+    font-size: 20px;
+    background: none;
+    padding: 0;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
+}
