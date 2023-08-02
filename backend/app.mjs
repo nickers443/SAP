@@ -85,6 +85,7 @@ const nameToConfigMapping = {
     },
   },
 }
+
 export default async function search(searchCode) {
   const data = {}
   const sources = Object.keys(nameToConfigMapping)

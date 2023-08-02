@@ -20,7 +20,6 @@ export const fetchData = createAsyncThunk('data/fetchData', async (code, thunkAp
         }))
         data[source] = addField
       }
-      console.log(data)
       return data
     }
   } catch (error) {
