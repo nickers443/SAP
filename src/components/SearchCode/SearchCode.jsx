@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faScrewdriverWrench } from '@fortawesome/free-solid-svg-icons'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchData } from '../../app/dataSlice'
-import MarginSection from '../MarginMenu/MarginMenu'
+import MarginMenu from '../MarginMenu/MarginMenu'
 import MainInput from '../MainInput/MainInput'
 import Button from '../Button/Button'
 import './style.scss'
@@ -68,7 +68,7 @@ export default function SearchCode() {
           children={status === 'pending' ? 'Загрузка...' : 'Отправить запрос'}
         />
       </div>
-      <MarginSection />
+      <MarginMenu />
     </form>
   )
 }

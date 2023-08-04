@@ -1,12 +1,13 @@
 import React from 'react'
 import Popup from 'reactjs-popup'
 import Button from '../Button/Button'
-import './Cart.style.scss'
-import { useSelector } from 'react-redux'
 import PreOfferItem from '../PreOffer/PreOfferItem/PreOfferItem'
+import { useSelector } from 'react-redux'
+import './Cart.style.scss'
 
 export default function Cart() {
   const offers = useSelector((state) => state.codeStore.offers)
+
   return (
     <Popup
       trigger={<Button type="button" children="Корзина" className="cartWrapper" />}

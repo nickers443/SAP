@@ -24,12 +24,15 @@ const nameToConfigMapping = {
             body,
           })
           .text()
+
         const {
           Code_List: {
-            List: { Code_List_Row: listData },
+            List: { Code_List_Row },
           },
         } = parser.parse(response)
-        return parseMikado(listData)
+
+        if (typeof Code_List_Row === 'undefined') return 'Ничего не найдено'
+        return parseMikado(Code_List_Row)
       } catch (error) {
         console.error(error)
       }
@@ -57,6 +60,9 @@ const nameToConfigMapping = {
             console.error(err)
             return reject([])
           }
+
+          if (!result.SearchResult.success) return resolve(result.SearchResult.message)
+
           const {
             SearchResult: {
               PartsList: { Part },
@@ -87,12 +93,11 @@ const nameToConfigMapping = {
 }
 
 export default async function search(searchCode) {
-  const data = {}
+  const data = []
   const sources = Object.keys(nameToConfigMapping)
   for (const source of sources) {
     const result = await nameToConfigMapping[source].getData(searchCode)
-    // console.log(result, `Результат запроса из функции SEARCH ${source}`)
-    data[source] = result
+    data.push({ provider: source, result })
   }
   return data
 }

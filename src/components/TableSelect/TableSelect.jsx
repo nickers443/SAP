@@ -8,6 +8,8 @@ import './TableSelect.style.scss'
 const animatedComponents = makeAnimated()
 
 export default function TableSelect({ options, id, provider }) {
+  if (typeof options === 'undefined') return
+
   const selectOptions = options.map((option) => ({
     value: option.location,
     label: `${option.location}  Кол-во: ${option.quantity}. Срок доставки ${option.deliveryDelay} `,

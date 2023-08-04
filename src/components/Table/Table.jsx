@@ -21,13 +21,8 @@ import './Table.style.scss'
 
 export default function Table() {
   const columnHelper = createColumnHelper()
-
-  const {
-    data: { mikado },
-    preOffer,
-  } = useSelector((state) => state.codeStore)
+  const { selectedData } = useSelector((state) => state.codeStore)
   const dispath = useDispatch()
-
   const [sorted, setSorted] = useState([])
 
   const columns = useMemo(
@@ -60,7 +55,7 @@ export default function Table() {
       columnHelper.accessor('description', {
         header: 'Описание',
         enableSorting: false,
-        cell: (cell) => <TruncateText text={cell.getValue()} maxWords={3} />,
+        cell: (cell) => <TruncateText text={cell.getValue()} maxWords={2} />,
       }),
       columnHelper.accessor('price', {
         header: 'Цена',
@@ -87,9 +82,8 @@ export default function Table() {
   )
 
   const table = useReactTable({
-    data: mikado,
+    data: selectedData,
     columns: columns,
-    enableMultiRowSelection: true,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -165,30 +159,12 @@ export default function Table() {
           Последняя страница
           <FontAwesomeIcon style={{ marginLeft: '8px' }} icon={faBackwardStep} rotation={180} />
         </button>
-        <p>{`Всего показано ${Number(table.getRowModel().rows[0].id) + 1} - ${
-          Number(table.getRowModel().rows[table.getRowModel()?.rows?.length - 1].id) + 1
-        } кросов из ${mikado?.length}`}</p>
+        {/* {data?.length > 1 && (
+          <p>{`Всего показано ${Number(table.getRowModel().rows[0]?.id) + 1} - ${
+            Number(table.getRowModel().rows[table.getRowModel()?.rows?.length - 1]?.id) + 1
+          } кросов из ${data?.length}`}</p>
+        )} */}
       </div>
     </div>
   )
 }
-
-// columnHelper.accessor('expand', {
-//   enableSorting: false,
-//   size: 30,
-//   header: '',
-//   cell: ({ row }) => (
-//     <div
-//       style={{
-//         paddingLeft: `${row.depth * 2}rem`,
-//       }}>
-//       <IndeterminateCheckbox
-//         {...{
-//           checked: row.getIsSelected(),
-//           indeterminate: row.getIsSomeSelected(),
-//           onChange: row.getToggleSelectedHandler(),
-//         }}
-//       />
-//     </div>
-//   ),
-// }),

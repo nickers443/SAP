@@ -1,11 +1,11 @@
 import React, { useCallback, useState } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPercent, faFloppyDisk } from '@fortawesome/free-solid-svg-icons'
+import { faPercent } from '@fortawesome/free-solid-svg-icons'
 import Popup from 'reactjs-popup'
 import { useDispatch, useSelector } from 'react-redux'
 import { changeMargin } from '../../app/dataSlice'
-import './MarginMenu.style.scss'
 import Button from '../Button/Button'
+import './MarginMenu.style.scss'
 
 export default function MarginSection() {
   const { margin } = useSelector((state) => state.codeStore)

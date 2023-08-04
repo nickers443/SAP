@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import { toast } from 'react-hot-toast'
-import { retailMargin } from '../helpers/retailPrice'
+import { addRetailPrice, retailMargin } from '../helpers/retailPrice'
 import ky from 'ky'
 
 export const fetchData = createAsyncThunk('data/fetchData', async (code, thunkApi) => {
@@ -9,20 +9,29 @@ export const fetchData = createAsyncThunk('data/fetchData', async (code, thunkAp
       codeStore: { margin },
     } = thunkApi.getState()
     const result = await ky.get(`/sendCode?code=${code}`).json()
-    const sources = Object.keys(result)
-    const data = {}
-    for (const source of sources) {
-      if (source === 'mikado') {
-        const addField = result[source].map((item) => ({
-          ...item,
-          selectDelivery: item.availability[0],
-          retailPrice: retailMargin(item.price, margin),
-        }))
-        data[source] = addField
+
+    return result.map((el) => {
+      if (el === 'Ничего не найдено') return el
+
+      if (el.provider !== 'mikado') {
+        return {
+          provider: el.provider,
+          result: el.result.map((brandItem) => {
+            return {
+              brand: brandItem.brand,
+              crosses: brandItem.crosses.map((cross) => addRetailPrice(cross, margin)),
+            }
+          }),
+        }
+      } else {
+        return {
+          provider: el.provider,
+          result: el.result.map((item) => addRetailPrice(item, margin)),
+        }
       }
-      return data
-    }
+    })
   } catch (error) {
+    console.log(error)
     return thunkApi.rejectWithValue({ error: error.message })
   }
 })
@@ -31,9 +40,24 @@ function clearState(state, action) {
   state.preOffer.splice(0, state.preOffer.length)
 }
 
+function getBrands(action) {
+  const result = []
+  action.payload.forEach((provider) => {
+    if (provider.provider !== 'mikado') {
+      provider.result.forEach((brand) => {
+        result.push(brand.brand)
+      })
+    }
+  })
+  return result
+}
+
 function addData(state, action) {
   clearState(state, action)
+  const brands = getBrands(action)
+
   state.data = action.payload
+  state.brands = [...brands]
   state.status = 'fulfilled'
   toast.dismiss()
   toast.success('Данные загружены')
@@ -42,87 +66,7 @@ function addData(state, action) {
 const dataSlice = createSlice({
   name: 'data',
   initialState: {
-    data: {
-      mikado: [
-        {
-          id: '1mikado',
-          code: 'ap175',
-          brand: 'FILTRON',
-          description: 'Фильтр возд..',
-          price: 571,
-          provider: 'Микадо',
-          providerEng: 'mikado',
-          availability: [
-            {
-              location: 'Симферополь',
-              quantity: 1,
-              deliveryDelay: 0,
-            },
-            {
-              location: 'Севастополь',
-              quantity: 1,
-              deliveryDelay: 0,
-            },
-            {
-              location: 'Евпатория',
-              quantity: 1,
-              deliveryDelay: 0,
-            },
-            {
-              location: 'Краснодар',
-              quantity: 1,
-              deliveryDelay: 2,
-            },
-            {
-              location: 'Пятигорск',
-              quantity: 1,
-              deliveryDelay: 2,
-            },
-            {
-              location: 'Анапа',
-              quantity: 1,
-              deliveryDelay: 2,
-            },
-            {
-              location: 'Ростов',
-              quantity: 1,
-              deliveryDelay: 2,
-            },
-            {
-              location: 'Волгоград',
-              quantity: 1,
-              deliveryDelay: 2,
-            },
-            {
-              location: 'Ставрополь',
-              quantity: 1,
-              deliveryDelay: 2,
-            },
-            {
-              location: 'Астрахань',
-              quantity: 1,
-              deliveryDelay: 3,
-            },
-            {
-              location: 'Самара',
-              quantity: 1,
-              deliveryDelay: 3,
-            },
-            {
-              location: 'СПб',
-              quantity: 5,
-              deliveryDelay: 7,
-            },
-          ],
-          selectDelivery: {
-            location: 'Симферополь',
-            quantity: 1,
-            deliveryDelay: 0,
-          },
-          retailPrice: 750,
-        },
-      ],
-    },
+    data: [],
     status: 'idle',
     error: null,
     margin: {
@@ -154,8 +98,18 @@ const dataSlice = createSlice({
     },
     offers: [],
     preOffer: [],
+    brands: [],
+    selectedBrand: '',
+    selectedData: [],
   },
   reducers: {
+    selectData(state, action) {
+      state.selectedData = action.payload
+    },
+    selectBrand(state, action) {
+      state.selectedBrand = ''
+      state.selectedBrand = action.payload
+    },
     changeMargin(state, action) {
       state.margin = { ...action.payload }
       const sources = Object.keys(state.data)
@@ -227,5 +181,7 @@ export const {
   deletePreOfferItem,
   addCategoryInOffers,
   clearPreOffer,
+  selectBrand,
+  selectData,
 } = dataSlice.actions
 export default dataSlice.reducer

@@ -7,6 +7,7 @@ import SmsBalance from './components/SmsBalance/SmsBalance'
 import { useDispatch } from 'react-redux'
 import { fetchSmsBalance } from './app/smsSlice'
 import './App.scss'
+import ChooseBrand from './components/ChooseBrand/ChooseBrand'
 
 export default function App() {
   const dispatch = useDispatch()
@@ -23,6 +24,7 @@ export default function App() {
             <SearchCode />
             <SmsBalance style={{ flexBasis: '65%' }} />
           </section>
+          <ChooseBrand />
           <Table />
           <PreOffer />
         </>
