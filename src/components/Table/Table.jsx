@@ -15,71 +15,96 @@ import { faBackwardStep, faArrowRight } from '@fortawesome/free-solid-svg-icons'
 import TableSelect from '../TableSelect/TableSelect'
 import PriceProvider from '../PriceProvider/PriceProvider'
 import { addPreOrderItem } from '../../app/dataSlice'
-import TruncateText from '../TruncateText/TruncateText'
 import Button from '../Button/Button'
+import Filter from '../Filter/Filter'
+import useDeveceType from '../../hooks/useDeviceType'
+import TableDescriptionCell from './TableDescriptionCell/TableDescriptionCell'
 import './Table.style.scss'
 
 export default function Table() {
   const columnHelper = createColumnHelper()
   const { selectedData } = useSelector((state) => state.codeStore)
   const dispath = useDispatch()
-  const [sorted, setSorted] = useState([])
+  const [sorted, setSorted] = useState([
+    {
+      id: 'price',
+      desc: false,
+    },
+  ])
 
-  const columns = useMemo(
-    () => [
-      columnHelper.accessor('expand', {
-        enableSorting: false,
-        size: 30,
-        header: '',
-        cell: ({ row }) => (
-          <Button
-            onClick={() => {
-              dispath(addPreOrderItem(row.original))
-            }}
-            icon="circlePlus"
-            iconSize="xl"
-            iconStyle={{ color: '#39a20b' }}
-            style={{ background: 'none', padding: 0 }}
-          />
-        ),
-      }),
-      columnHelper.accessor('code', {
-        header: 'Артикул',
-        enableSorting: false,
-        size: 80,
-      }),
-      columnHelper.accessor('brand', {
-        header: 'Производитель',
-        enableSorting: false,
-      }),
-      columnHelper.accessor('description', {
-        header: 'Описание',
-        enableSorting: false,
-        cell: (cell) => <TruncateText text={cell.getValue()} maxWords={2} />,
-      }),
-      columnHelper.accessor('price', {
-        header: 'Цена',
-        cell: ({ row }) => PriceProvider(row.original.price, row.original.retailPrice),
-      }),
-      columnHelper.accessor('availability', {
-        header: 'Наличие',
-        enableSorting: false,
-        minSize: 220,
-        cell: (cell) => (
-          <TableSelect
-            options={cell.getValue()}
-            id={cell.row.original.id}
-            provider={cell.row.original.providerEng}
-          />
-        ),
-      }),
-      columnHelper.accessor('provider', {
-        header: 'Поставщик',
-        enableSorting: false,
-      }),
-    ],
-    [],
-  )
+  const [filtred, setFiltered] = useState([])
+
+  const deviceType = useDeveceType()
+  const [width, setWidth] = useState(400)
+  useEffect(() => {
+    if (deviceType) {
+      if (deviceType === 'Mobile') {
+        setWidth(150)
+      } else if (deviceType === 'Tablet') {
+        setWidth(250)
+      } else {
+        setWidth(400)
+      }
+    }
+  }, [deviceType])
+
+  const columns = [
+    columnHelper.accessor('expand', {
+      enableSorting: false,
+      size: 30,
+      header: '',
+      enableColumnFilter: false,
+      cell: ({ row }) => (
+        <Button
+          onClick={() => {
+            dispath(addPreOrderItem(row.original))
+          }}
+          icon="circlePlus"
+          iconSize="xl"
+          iconStyle={{ color: '#39a20b' }}
+          style={{ background: 'none', padding: 0 }}
+        />
+      ),
+    }),
+    columnHelper.accessor('code', {
+      header: 'Артикул',
+      enableSorting: false,
+    }),
+    columnHelper.accessor('brand', {
+      header: 'Производитель',
+      enableSorting: false,
+    }),
+    columnHelper.accessor('description', {
+      header: 'Описание',
+      enableSorting: false,
+      enableColumnFilter: false,
+      cell: (cell) => <TableDescriptionCell cell={cell} />,
+    }),
+    columnHelper.accessor('price', {
+      header: 'Цена',
+      enableMultiSort: true,
+      enableColumnFilter: false,
+      cell: ({ row }) => PriceProvider(row.original.price, row.original.retailPrice),
+    }),
+    columnHelper.accessor('availability', {
+      header: 'Наличие',
+      size: width,
+      enableMultiSort: false,
+      enableSorting: false,
+      enableColumnFilter: false,
+      cell: (cell) => (
+        <TableSelect
+          options={cell.getValue()}
+          id={cell.row.original.id}
+          provider={cell.row.original.providerEng}
+        />
+      ),
+    }),
+    columnHelper.accessor('provider', {
+      header: 'Поставщик',
+      enableSorting: false,
+    }),
+  ]
 
   const table = useReactTable({
     data: selectedData,
@@ -88,12 +113,15 @@ export default function Table() {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    enableSorting: true,
+    enableSortingRemoval: false,
     state: {
+      columnFilters: filtred,
       sorting: sorted,
     },
     onSortingChange: setSorted,
+    onColumnFiltersChange: setFiltered,
   })
-
   useMemo(() => [table.setPageSize(10)], [])
 
   return (
@@ -111,6 +139,11 @@ export default function Table() {
                   }}>
                   {header.placeholderId ? null : (
                     <div>
+                      {header.column.getCanFilter() ? (
+                        <div>
+                          <Filter column={header.column} table={table} />
+                        </div>
+                      ) : null}
                       {flexRender(header.column.columnDef.header, header.getContext())}
                       {{ asc: '▲', desc: '▼' }[header.column.getIsSorted() ?? null]}
                     </div>

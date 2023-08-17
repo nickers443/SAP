@@ -11,19 +11,18 @@ export default function PreOfferItem({
   selectDelivery,
   id,
   deleteButton = true,
+  mode = 'main',
 }) {
   const dispatch = useDispatch()
 
-  const handleClick = (id) => {
-    dispatch(deletePreOfferItem(id))
-  }
+  const handleClick = (id) => dispatch(deletePreOfferItem(id))
 
   return (
     <div className="preOfferItem">
-      <span>Артикул: {code}</span>
+      {mode === 'main' && <span>Артикул: {code}</span>}
       <span>Производитель: {brand}</span>
       <span>Стоимость: {retailPrice}</span>
-      <span>Склад: {selectDelivery.location}</span>
+      {mode === 'main' && <span>Склад: {selectDelivery.location}</span>}
       <span>Доставка через: {selectDelivery.deliveryDelay} дней</span>
       {deleteButton && (
         <Button

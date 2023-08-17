@@ -1,0 +1,9 @@
+.debouncedInput {
+  border: 0;
+  border-bottom: 2px solid black;
+  width: 70px;
+
+  &:focus-visible {
+    outline: 0;
+  }
+}

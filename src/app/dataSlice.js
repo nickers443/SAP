@@ -8,6 +8,7 @@ export const fetchData = createAsyncThunk('data/fetchData', async (code, thunkAp
     const {
       codeStore: { margin },
     } = thunkApi.getState()
+
     const result = await ky.get(`/sendCode?code=${code}`).json()
 
     return result.map((el) => {
@@ -18,7 +19,8 @@ export const fetchData = createAsyncThunk('data/fetchData', async (code, thunkAp
           provider: el.provider,
           result: el.result.map((brandItem) => {
             return {
-              brand: brandItem.brand,
+              ...brandItem,
+              math: brandItem.math.length !== 0 ? addRetailPrice(brandItem.math, margin) : [],
               crosses: brandItem.crosses.map((cross) => addRetailPrice(cross, margin)),
             }
           }),
@@ -26,7 +28,9 @@ export const fetchData = createAsyncThunk('data/fetchData', async (code, thunkAp
       } else {
         return {
           provider: el.provider,
-          result: el.result.map((item) => addRetailPrice(item, margin)),
+          result: el.result.map((item) => {
+            return addRetailPrice(item, margin)
+          }),
         }
       }
     })
@@ -36,7 +40,26 @@ export const fetchData = createAsyncThunk('data/fetchData', async (code, thunkAp
   }
 })
 
-function clearState(state, action) {
+export const saveData = createAsyncThunk('data/saveData', async (_, thunkApi) => {
+  try {
+    const {
+      codeStore: { searchCode, textForClient, moreInfo, offers },
+    } = thunkApi.getState()
+    const saveData = {
+      searchCode,
+      textForClient,
+      moreInfo,
+      offers,
+    }
+    console.log(saveData)
+    return saveData
+  } catch (error) {
+    console.log(error)
+    return thunkApi.rejectWithValue({ error: error.message })
+  }
+})
+
+function clearPreOfferState(state) {
   state.preOffer.splice(0, state.preOffer.length)
 }
 
@@ -57,10 +80,46 @@ function addData(state, action) {
   const brands = getBrands(action)
 
   state.data = action.payload
-  state.brands = [...brands]
+  state.brands = brands
   state.status = 'fulfilled'
   toast.dismiss()
   toast.success('Данные загружены')
+}
+
+const initialStateMoreInfo = [
+  {
+    title: 'Клиент',
+    id: 'client',
+    value: '',
+  },
+  {
+    title: 'Контакты',
+    id: 'contacts',
+    value: '',
+  },
+  {
+    title: 'Vin',
+    id: 'vin',
+    value: '',
+  },
+  {
+    title: 'Авто',
+    id: 'car',
+    value: '',
+  },
+]
+
+function clearState(state) {
+  state.status = 'idle'
+  state.error = null
+  state.data = []
+  state.brands = []
+  state.offers = []
+  state.preOffer = []
+  state.selectedBrand = ''
+  state.selectedData = []
+  state.moreInfo = initialStateMoreInfo
+  state.textForClient = ''
 }
 
 const dataSlice = createSlice({
@@ -96,11 +155,14 @@ const dataSlice = createSlice({
         type: 'checkbox',
       },
     },
+    searchCode: '',
     offers: [],
     preOffer: [],
     brands: [],
     selectedBrand: '',
     selectedData: [],
+    moreInfo: initialStateMoreInfo,
+    textForClient: '',
   },
   reducers: {
     selectData(state, action) {
@@ -112,16 +174,12 @@ const dataSlice = createSlice({
     },
     changeMargin(state, action) {
       state.margin = { ...action.payload }
-      const sources = Object.keys(state.data)
-      const data = {}
-      for (const source of sources) {
-        const addField = state.data[source].map((item) => ({
-          ...item,
-          retailPrice: retailMargin(item.price, state.margin),
-        }))
-        data[source] = addField
-        state.data = { ...data }
-      }
+      const addField = state.selectedData.map((item) => ({
+        ...item,
+        retailPrice: retailMargin(item.price, state.margin),
+      }))
+
+      state.selectedData = addField
       toast.success('Сохранения вступили в силу')
     },
     addPreOrderItem(state, action) {
@@ -155,19 +213,49 @@ const dataSlice = createSlice({
     addCategoryInOffers(state, action) {
       state.offers.push(action.payload)
     },
-    clearPreOffer: clearState,
+    setMoreInfo(state, action) {
+      state.moreInfo = action.payload
+    },
+    setTextForClient(state, action) {
+      state.textForClient = action.payload
+    },
+    clearPreOffer: clearPreOfferState,
   },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchData.pending, (state) => {
+  extraReducers: (bulder) => {
+    bulder
+      .addCase(fetchData.pending, (state, action) => {
+        state.searchCode = ''
         state.status = 'pending'
         state.error = null
+        state.data = []
+        state.brands = []
+        state.preOffer = []
+        state.selectedData = []
+        state.searchCode = action.meta.arg
         toast.loading('Загрузка')
       })
       .addCase(fetchData.fulfilled, addData)
       .addCase(fetchData.rejected, (state, action) => {
         state.status = 'rejected'
         state.error = action.payload.error
+        state.data = []
+        state.brands = []
+        state.preOffer = []
+        state.selectedData = []
+        state.searchCode = ''
+        toast.dismiss()
+        toast.error(`Произошла ошибка: ${state.error}}`)
+      })
+      .addCase(saveData.pending, (state, action) => {
+        toast.loading('Загрузка')
+      })
+      .addCase(saveData.fulfilled, (state, action) => {
+        state.searchCode = ''
+        clearState(state)
+        toast.dismiss()
+        toast.success('Данные сохранены')
+      })
+      .addCase(saveData.rejected, (state, action) => {
         toast.dismiss()
         toast.error(`Произошла ошибка: ${state.error}}`)
       })
@@ -183,5 +271,7 @@ export const {
   clearPreOffer,
   selectBrand,
   selectData,
+  setMoreInfo,
+  setTextForClient,
 } = dataSlice.actions
 export default dataSlice.reducer

@@ -64,19 +64,6 @@ h1,h2,h3,h4,h5,h6 {
   box-shadow: .5rem .5rem 0 var(--color-shadow, black);
 }
 
-.button {
-  color: black;
-  padding: var(--size-bezel) calc(var(--size-bezel) * 2);
-  background: var(--color-accent);
-  border: none;
-  border-radius: var(--size-radius);
-  font-weight: 900;
-
-  &:hover {
-    cursor: pointer;
-  }
-}
-
 input[type=number]::-webkit-outer-spin-button,
 input[type=number]::-webkit-inner-spin-button {
     -webkit-appearance: none;

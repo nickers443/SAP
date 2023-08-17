@@ -62,7 +62,6 @@ const nameToConfigMapping = {
           }
 
           if (!result.SearchResult.success) return resolve(result.SearchResult.message)
-
           const {
             SearchResult: {
               PartsList: { Part },

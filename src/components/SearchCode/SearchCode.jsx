@@ -4,27 +4,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faScrewdriverWrench } from '@fortawesome/free-solid-svg-icons'
 import { useDispatch, useSelector } from 'react-redux'
 import { fetchData } from '../../app/dataSlice'
-import MarginMenu from '../MarginMenu/MarginMenu'
 import MainInput from '../MainInput/MainInput'
 import Button from '../Button/Button'
 import './style.scss'
 
 export default function SearchCode() {
+  const regex = /[А-я]/
   const { status } = useSelector((state) => state.codeStore)
   const dispatch = useDispatch()
   const [code, setCode] = useState('')
-  const [error, setError] = useState('')
 
   const handleSetCode = (event) => {
-    const regex = /^[a-zA-Z0-9 !@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/
-
-    if (regex.test(code)) {
-      setCode(event.target.value)
-      setError('')
-    } else {
-      setCode(event.target.value)
-      setError('Можно вводить только числа, символы и латинские буквы')
-    }
+    const value = event.target.value.replace(regex, '')
+    setCode(value.trim())
   }
 
   async function submit(e) {
@@ -32,7 +24,6 @@ export default function SearchCode() {
 
     if (code.length < 3) {
       toast.error('Необходимо ввести минимум 3 символа')
-      setError('Можно вводить только числа, символы и латинские буквы')
       return
     }
 
@@ -55,20 +46,13 @@ export default function SearchCode() {
         Подбор
         <br /> автозапчастей
       </h2>
-      <MainInput
-        value={code}
-        onChange={handleSetCode}
-        status={status}
-        title={'Введите артикул'}
-        error={error}
-      />
+      <MainInput value={code} onChange={handleSetCode} status={status} title={'Введите артикул'} />
       <div className="button-group">
         <Button
           disabled={status === 'pending' ? true : false}
           children={status === 'pending' ? 'Загрузка...' : 'Отправить запрос'}
         />
       </div>
-      <MarginMenu />
     </form>
   )
 }

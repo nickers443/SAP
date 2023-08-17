@@ -2,10 +2,11 @@ import React from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Button from '../Button/Button'
 import { selectBrand, selectData } from '../../app/dataSlice'
+import _ from 'lodash'
 import './ChooseBrand.style.scss'
 
 export default function ChooseBrand() {
-  const { brands, data } = useSelector((state) => state.codeStore)
+  const { brands, data, searchCode } = useSelector((state) => state.codeStore)
   const dispatch = useDispatch()
 
   const parsedDataForTable = (data, selectedBrand) => {
@@ -17,6 +18,8 @@ export default function ChooseBrand() {
       } else {
         provider.result.forEach((brand) => {
           if (brand.brand.toLowerCase() === selectedBrand) {
+            if (_.has(brand, 'math')) result.push(brand.math)
+
             brand.crosses.forEach((cross) => {
               result.push(cross)
             })
@@ -35,7 +38,10 @@ export default function ChooseBrand() {
 
   return (
     <div className="main chooseBrand">
-      <h3>Выбери нужного производителя</h3>
+      <div className="chooseBrand__title">
+        <h3>Выбери нужного производителя</h3>
+        <h4>Ищем по номеру: {searchCode}</h4>
+      </div>
       <div className="chooseBrand__button-section">
         {brands.length >= 1 &&
           brands.map((brand, index) => {

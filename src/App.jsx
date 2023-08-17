@@ -3,7 +3,7 @@ import { Toaster } from 'react-hot-toast'
 import SearchCode from './components/SearchCode/SearchCode'
 import Table from './components/Table/Table'
 import PreOffer from './components/PreOffer/PreOffer'
-import SmsBalance from './components/SmsBalance/SmsBalance'
+import SecondSection from './components/SecondSection/SecondSection'
 import { useDispatch } from 'react-redux'
 import { fetchSmsBalance } from './app/smsSlice'
 import './App.scss'
@@ -22,7 +22,7 @@ export default function App() {
           <section
             style={{ display: 'flex', alignItems: 'stretch', justifyContent: 'space-between' }}>
             <SearchCode />
-            <SmsBalance style={{ flexBasis: '65%' }} />
+            <SecondSection style={{ flexBasis: '65%' }} />
           </section>
           <ChooseBrand />
           <Table />

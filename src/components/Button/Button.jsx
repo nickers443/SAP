@@ -1,10 +1,33 @@
 import React, { forwardRef } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faXmark, faPercent, faFloppyDisk, faCirclePlus } from '@fortawesome/free-solid-svg-icons'
+import {
+  faXmark,
+  faPercent,
+  faFloppyDisk,
+  faCirclePlus,
+  faCircleInfo,
+  faCopy,
+  faArrowDown,
+} from '@fortawesome/free-solid-svg-icons'
 import './Button.style.scss'
 
 const Button = forwardRef(
-  ({ style, disabled, children, onClick, type, className, icon, iconSize, iconStyle }, ref) => {
+  (
+    {
+      style,
+      disabled,
+      children,
+      onClick,
+      type,
+      className = '',
+      icon,
+      iconSize,
+      iconStyle,
+      form,
+      animation = 'press',
+    },
+    ref,
+  ) => {
     let symbol
     switch (icon) {
       case 'close':
@@ -23,6 +46,18 @@ const Button = forwardRef(
         symbol = faCirclePlus
         break
 
+      case 'faCircleInfo':
+        symbol = faCircleInfo
+        break
+
+      case 'faCopy':
+        symbol = faCopy
+        break
+
+      case 'faArrowDown':
+        symbol = faArrowDown
+        break
+
       default:
         ''
         break
@@ -33,7 +68,8 @@ const Button = forwardRef(
         ref={ref}
         style={style}
         type={type}
-        className={`button ${className}`}
+        form={form}
+        className={`button ${className} ${animation}`}
         disabled={disabled}
         onClick={onClick}>
         {children}

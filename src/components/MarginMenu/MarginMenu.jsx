@@ -46,11 +46,11 @@ export default function MarginSection() {
       />
       <Popup open={open} closeOnDocumentClick onClose={closeModal}>
         <div className="modal main">
-          <Button className="close" onClick={closeModal} icon="close" iconSize="xs" />
+          <Button type="button" className="close" onClick={closeModal} icon="close" iconSize="xs" />
           <div className="header"> Секретные настройки </div>
           <div className="content">
             Диапазон цен
-            <form className="marginForm" onSubmit={(e) => handleSubmit(e)}>
+            <form id="marginForm" className="marginForm" onSubmit={(e) => handleSubmit(e)}>
               {Object.entries(formValue).map(([key, value]) => {
                 return (
                   <label key={key} className="label">
@@ -73,6 +73,7 @@ export default function MarginSection() {
                 )
               })}
               <Button
+                form="marginForm"
                 icon="save"
                 iconSize="1x"
                 iconStyle={{ marginLeft: '8px' }}

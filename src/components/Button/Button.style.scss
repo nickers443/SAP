@@ -1,3 +1,38 @@
+$color: #fab700;
+$opacity: 0.3;
+
 .button {
-  
+  color: black;
+  padding: var(--size-bezel) calc(var(--size-bezel) * 2);
+  background-color: var(--color-accent);
+  border: none;
+  border-radius: var(--size-radius);
+  font-weight: 900;
+
+  &:hover {
+    cursor: pointer;
+  }
+
+  &:disabled {
+    background-color: rgba($color, $opacity);
+    cursor: not-allowed;
+  }
+}
+
+.press {
+  transition: all .3s ease;
+
+  &:active:not(:disabled) {
+    transform: scale(0.9);
+  }
+}
+
+.rotate {
+  svg {
+    transition: .4s ease;
+  }
+
+  &.active svg{
+    transform: rotate(180deg);
+  }
 }

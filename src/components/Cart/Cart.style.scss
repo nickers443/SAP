@@ -4,7 +4,23 @@
   right: 16px;
 }
 
-.content {
-  max-height: 60vh;
-  overflow-y: auto;
+.modal {
+
+  & form {
+    margin-top: calc(var(--size-bezel) * 2);
+  }
+
+  & button:not(:last-child) {
+    margin-right: var(--size-bezel);
+  }
+
+  &__content {
+    max-height: 60vh;
+    overflow-y: auto;
+
+    & h2 {
+      text-align: center;
+      padding: calc(var(--size-bezel) * 2);
+    } 
+  }
 }

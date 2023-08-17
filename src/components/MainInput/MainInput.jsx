@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import './MainInput.style.scss'
 
-export default function MainInput({ value, onChange, status, title, error = null }) {
+export default function MainInput({
+  value,
+  onChange,
+  status,
+  title,
+  error = null,
+  style,
+  id,
+  defaultValue,
+}) {
   if (typeof error === 'undefined') return
   const [isPopupOpen, setIsPopupOpen] = useState(false)
 
@@ -9,6 +18,7 @@ export default function MainInput({ value, onChange, status, title, error = null
     if (Boolean(error)) setIsPopupOpen(true)
     else setIsPopupOpen(false)
   }, [error])
+
   return (
     <label className="mainInput">
       <input
@@ -16,6 +26,9 @@ export default function MainInput({ value, onChange, status, title, error = null
         type="text"
         placeholder=" "
         value={value}
+        style={style}
+        id={id}
+        defaultValue={defaultValue}
         onChange={onChange}
         disabled={status === 'pending' ? true : false}
       />
